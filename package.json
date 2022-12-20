@@ -1,0 +1,8 @@
+{
+	"name": "com.mirror-networking.lite-net-lib-transport",
+	"displayName": "LiteNetLib Transport",
+	"version": "0.0.1",
+	"unity": "2021.3",
+	"description": "LiteNetLib Transport for Mirror",
+	"keywords": ["mirror", "litenetlib", "transport", "networking"]
+}
