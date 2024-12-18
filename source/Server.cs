@@ -22,8 +22,6 @@ namespace LiteNetLibMirror
         readonly int disconnectTimeout;
         readonly string acceptConnectKey;
 
-        readonly ILogger logger;
-
         // LiteNetLib state
         NetManager server;
         Dictionary<int, NetPeer> connections = new Dictionary<int, NetPeer>(ConnectionCapacity);
@@ -32,13 +30,12 @@ namespace LiteNetLibMirror
         public event OnServerData onData;
         public event OnDisconnected onDisconnected;
 
-        public Server(ushort port, int updateTime, int disconnectTimeout, string acceptConnectKey, ILogger logger)
+        public Server(ushort port, int updateTime, int disconnectTimeout, string acceptConnectKey)
         {
             this.port = port;
             this.updateTime = updateTime;
             this.disconnectTimeout = disconnectTimeout;
             this.acceptConnectKey = acceptConnectKey;
-            this.logger = logger;
         }
 
         /// <summary>
@@ -66,11 +63,11 @@ namespace LiteNetLibMirror
             // not if already started
             if (server != null)
             {
-                logger.LogWarning("LiteNetLib: server already started.");
+                Debug.LogWarning("LiteNetLib: server already started.");
                 return;
             }
 
-            logger.Log("LiteNet SV: starting...");
+            Debug.Log("LiteNet SV: starting...");
 
             // create server
             EventBasedNetListener listener = new EventBasedNetListener();
@@ -92,14 +89,14 @@ namespace LiteNetLibMirror
 
         private void Listener_ConnectionRequestEvent(ConnectionRequest request)
         {
-            logger.Log("LiteNet SV connection request");
+            Debug.Log("LiteNet SV connection request");
             request.AcceptIfKey(acceptConnectKey);
         }
 
         private void Listener_PeerConnectedEvent(NetPeer peer)
         {
             int id = ToMirrorId(peer.Id);
-            if (logger.LogEnabled()) logger.Log($"LiteNet SV client connected: {peer.EndPoint} id={id}");
+            Debug.Log($"LiteNet SV client connected: {peer.EndPoint} id={id}");
             connections[id] = peer;
             onConnected?.Invoke(id);
         }
@@ -108,7 +105,7 @@ namespace LiteNetLibMirror
         {
             int id = ToMirrorId(peer.Id);
 
-            if (logger.LogEnabled()) logger.Log($"LiteNet SV received {reader.AvailableBytes} bytes. method={deliveryMethod}");
+            Debug.Log($"LiteNet SV received {reader.AvailableBytes} bytes. method={deliveryMethod}");
             onData?.Invoke(id, reader.GetRemainingBytesSegment(), deliveryMethod);
             reader.Recycle();
         }
@@ -118,14 +115,14 @@ namespace LiteNetLibMirror
             int id = ToMirrorId(peer.Id);
             // this is called both when a client disconnects, and when we
             // disconnect a client.
-            if (logger.LogEnabled()) logger.Log($"LiteNet SV client disconnected: {peer.EndPoint} info={disconnectInfo}");
+            Debug.Log($"LiteNet SV client disconnected: {peer.EndPoint} info={disconnectInfo}");
             onDisconnected?.Invoke(id);
             connections.Remove(id);
         }
 
         private void Listener_NetworkErrorEvent(IPEndPoint endPoint, System.Net.Sockets.SocketError socketError)
         {
-            if (logger.WarnEnabled()) logger.LogWarning($"LiteNet SV network error: {endPoint} error={socketError}");
+            Debug.LogWarning($"LiteNet SV network error: {endPoint} error={socketError}");
             // TODO should we disconnect or is it called automatically?
         }
 
@@ -143,7 +140,7 @@ namespace LiteNetLibMirror
         {
             if (server == null)
             {
-                logger.LogWarning("LiteNet SV: can't send because not started yet.");
+                Debug.LogWarning("LiteNet SV: can't send because not started yet.");
                 return false;
             }
 
@@ -158,7 +155,7 @@ namespace LiteNetLibMirror
         {
             if (server == null)
             {
-                logger.LogWarning("LiteNet SV: can't send because not started yet.");
+                Debug.LogWarning("LiteNet SV: can't send because not started yet.");
                 return;
             }
 
@@ -170,12 +167,12 @@ namespace LiteNetLibMirror
                 }
                 catch (TooBigPacketException exception)
                 {
-                    if (logger.WarnEnabled()) { logger.LogWarning($"LiteNet SV: send failed for connectionId={connectionId} reason={exception}"); }
+                    { Debug.LogWarning($"LiteNet SV: send failed for connectionId={connectionId} reason={exception}"); }
                 }
             }
-            else if (logger.WarnEnabled())
+            else
             {
-                logger.LogWarning($"LiteNet SV: invalid connectionId={connectionId}");
+                Debug.LogWarning($"LiteNet SV: invalid connectionId={connectionId}");
             }
         }
 
@@ -195,7 +192,7 @@ namespace LiteNetLibMirror
                     peer.Disconnect();
                     return true;
                 }
-                if (logger.WarnEnabled()) logger.LogWarning($"LiteNet SV: invalid connectionId={connectionId}");
+                Debug.LogWarning($"LiteNet SV: invalid connectionId={connectionId}");
                 return false;
             }
             return false;

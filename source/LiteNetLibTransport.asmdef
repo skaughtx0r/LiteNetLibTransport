@@ -1,14 +1,17 @@
 {
     "name": "LiteNetLibTransport",
+    "rootNamespace": "",
     "references": [
-        "Mirror"
+        "Mirror",
+        "Mirror.Transports"
     ],
-    "optionalUnityReferences": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": []
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
